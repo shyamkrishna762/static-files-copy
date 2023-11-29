@@ -2,6 +2,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
@@ -15,14 +16,14 @@ public class RedisConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory();
-        // Set SSL properties
-        jedisConnectionFactory.setUseSsl(true);
+        JedisClientConfiguration.JedisClientConfigurationBuilder jedisClientConfiguration = JedisClientConfiguration.builder();
+        jedisClientConfiguration.useSsl().keyStoreType("PEM").keyResource(new ClassPathResource("path/to/your/certificate.pem"));
+        
+        JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory(jedisClientConfiguration.build());
         jedisConnectionFactory.setHostName("your.redis.host");
         jedisConnectionFactory.setPort(6379);
         jedisConnectionFactory.setPassword("your_redis_password");
-        jedisConnectionFactory.setKeyStoreType("PEM");
-        jedisConnectionFactory.setKeyStore("classpath:path/to/your/certificate.pem");
+
         return jedisConnectionFactory;
     }
 
